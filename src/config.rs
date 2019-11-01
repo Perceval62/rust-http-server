@@ -24,6 +24,15 @@ use std::vec::Splice;
 use std::path::Path;
 
 
+/**
+*   This module handles the preferences.
+*   get_server_info()       Returns a SocketAddr struct and a u16 in a tuple. If config.json
+*                           doesn't exist it will create one.
+*                               ->SocketAddr is the socket address.
+*                               ->u16 is the max number of threads
+*   create_default_file()   Creates a json file in current working directory
+*/
+
 /* Serde json needs this macro to know the type of the json
 object we are saving and reading.*/
 
@@ -41,7 +50,6 @@ pub fn get_server_info() ->std::result::Result<(SocketAddr, u16), &'static str>
 {
     /* Open file*/
     let ret = File::open(Path::new("./config.json"));
-    /* If file doesn't exist */
     let preferences_file = match ret{
         Ok(handle) => handle,
         Err(err) => {   println!("[Pref] Log: File error: {}.",err);
@@ -49,33 +57,31 @@ pub fn get_server_info() ->std::result::Result<(SocketAddr, u16), &'static str>
                         File::open(Path::new("./config.json")).unwrap()
                     }
     };
-
-
     /* Get port and socket information from a JSON file*/
     let mut reader = std::io::BufReader::new(preferences_file);
-
+    /* Buffer for the file content */
     let mut content_string: String = String::new();
-
+    /* Get the text from file to buffer with the help of our reader object */
     reader.read_to_string(&mut content_string).unwrap();
-
+    /* Get a json serde object */
     let json_object = serde_json::from_str(&content_string);
-
+    /* If JSON formatting is ok*/
     if json_object.is_ok(){
-        /* Reading a json object of type pref */
+        /* Read json object of type pref */
         let objects: Pref = json_object.unwrap();
-        /* Parse JSON */
+        /* Parse JSON into a string */
         let ip_string = format!("{}:{}", objects.ip, objects.port);
         println!("[Pref] Log: Read {} from config.json", ip_string);
+        /* Create a SocketAddr object from the string */
         let ret: SocketAddr = ip_string.parse().unwrap();
+        /* return the SocketAddr object and the max num thread in the preferences files */
         Ok((ret, objects.num_threads_max))
     }
     else {
-        Err("[Pref] Error: Couldn't get preferences. Check Json formatting")
+        Err("\n[Pref] Error: Couldn't get preferences. Check Json formatting")
     }
-
 }
 
-/* Will panic if file cannot be created in the same directory */
 pub fn create_default_file()
 {
     /* create a dummy JSON preference file */
