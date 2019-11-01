@@ -40,11 +40,14 @@ struct Pref {
 pub fn get_server_info() ->std::result::Result<(SocketAddr, u16), &'static str>
 {
     /* Open file*/
-    let ret = File::open(Path::new("./pref.json"));
+    let ret = File::open(Path::new("./config.json"));
     /* If file doesn't exist */
     let preferences_file = match ret{
         Ok(handle) => handle,
-        Err(err) => {println!("File error: {}",err);create_default_file(); File::open(Path::new("./pref.json")).unwrap()}
+        Err(err) => {   println!("[Pref] Log: File error: {}.",err);
+                        create_default_file();
+                        File::open(Path::new("./config.json")).unwrap()
+                    }
     };
 
 
@@ -62,12 +65,12 @@ pub fn get_server_info() ->std::result::Result<(SocketAddr, u16), &'static str>
         let objects: Pref = json_object.unwrap();
         /* Parse JSON */
         let ip_string = format!("{}:{}", objects.ip, objects.port);
-        println!("[Pref]: Read {} from pref.json", ip_string);
+        println!("[Pref] Log: Read {} from config.json", ip_string);
         let ret: SocketAddr = ip_string.parse().unwrap();
         Ok((ret, objects.num_threads_max))
     }
     else {
-        Err("Couldn't get preferences. Check Json formatting")
+        Err("[Pref] Error: Couldn't get preferences. Check Json formatting")
     }
 
 }
@@ -78,10 +81,10 @@ pub fn create_default_file()
     /* create a dummy JSON preference file */
     let json_file = json!( {"ip":"127.0.0.1","port":80, "num_threads_max":20} );
     /* Create the file */
-    let file = match File::create("./pref.json")
+    let file = match File::create("./config.json")
     {
         Ok(file_handle) => file_handle,
-        Err(_err) => panic!("Check files permissions, could not write preferences file.")
+        Err(_err) => panic!("[Pref] Error: Check files permissions, could not write preferences file.")
     };
     /* Convert the serde strructure to a rust string  */
     let data = serde_json::to_string_pretty(&json_file).unwrap();
@@ -93,4 +96,5 @@ pub fn create_default_file()
     writer.flush().unwrap();
     /*  Make sure to drop the buffer writer */
     std::mem::drop(writer);
+    println!("[Pref] Log: Created default config file.");
 }
