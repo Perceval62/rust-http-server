@@ -9,6 +9,8 @@ use std::net::SocketAddr;
 use std::thread;
 use std::env;
 
+use threadpool::ThreadPool;
+
 use std::sync::{Arc, Mutex};
 use std::sync::mpsc;
 
@@ -55,32 +57,17 @@ fn start(address: SocketAddr, max_thread_count: u16)
         Err(err) => {println!("[Main] Log: could not bind address. Check for admin privileges.");
         panic!(err)}
     };
-    let mut thread_list = Vec::with_capacity(num_threads_max as usize);
+    //let mut thread_list = Vec::with_capacity(num_threads_max as usize);
     println!("[Main] Log: Started the listener thread pool with {} maximum threads", num_threads_max);
 
-    let mut count: u16 = 0;
+    let pool = ThreadPool::new(num_threads_max as usize);
     for tcp_streams in listener.incoming()
     {
-        /* Check for max amount of traffic */
-        if count < num_threads_max
-        {
-            count = count + 1;
-            thread_list.push(thread::spawn(move ||
-                {
-                    handle_client(tcp_streams.unwrap()).unwrap();
-                }
-            ).join());
-            count = count - 1;
-        }
-        else {
-            tcp_streams.unwrap().write( "   HTTP/1.1 503 Service Unavailable\n\r\n\r
-                                            <html>
-                                            <body>
-                                                <h1>Service Unavailable</h1>
-                                                Too much traffic at the moment.
-                                            </body>
-                                            </html>".as_bytes()).unwrap();
-        }
+        pool.execute(move ||
+            {
+                handle_client(tcp_streams.unwrap()).unwrap();
+            }
+        );
     }
 }
 
@@ -102,9 +89,11 @@ fn handle_client(mut stream: std::net::TcpStream) -> Result<(), &'static str>
 
     stream.read(&mut buffer).unwrap();
 
+
+    /* If request contains /app/ */
+    // call corresponding microservice
+    /* Else, basic web server */
     println!("Request:\n{}", String::from_utf8_lossy(&buffer[..]));
-    /*let mut request: String = String::new();
-    println!("HTTP REQUEST:\n{}", stream.set_nonblocking(true));*/
     stream.write(   "HTTP/1.1 200 OK\n\r\n\r
                     <html>
                         <body>
