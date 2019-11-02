@@ -90,7 +90,8 @@ pub fn create_default_file()
     let file = match File::create("./config.json")
     {
         Ok(file_handle) => file_handle,
-        Err(_err) => panic!("[Pref] Error: Check files permissions, could not write preferences file.")
+        Err(_err) => panic!("   [Pref] Error: Check files permissions, \n
+                                could not write preferences file.")
     };
     /* Convert the serde strructure to a rust string  */
     let data = serde_json::to_string_pretty(&json_file).unwrap();
