@@ -1,5 +1,5 @@
 mod config;
-mod httpHandling;
+mod http_handling;
 #[macro_use]
 extern crate serde_json;
 use std::env;
@@ -16,7 +16,7 @@ fn main() {
     {
         match args[1].as_str()
         {
-            "help"              => { httpHandling::print_man(); return() },
+            "help"              => { http_handling::print_man(); return() },
             "generate-config"   => { config::create_default_file(); return() },
             "start"             => { bootstrap(); return() },
             /* case garbage */
@@ -24,13 +24,13 @@ fn main() {
         };
     }
     println!("Please use the following options:");
-    httpHandling::print_man();
+    http_handling::print_man();
 }
 
 fn bootstrap()
 {
     println!("[Main] Log: Vincent Perrier Rust Server Backend.");
     println!("[Main] Warning: Usually needs to run with root/admin privileges.");
-    let pref = config::get_server_info().unwrap();
-    httpHandling::start(pref.0, pref.1);
+    let pref = config::get_server_settings().unwrap();
+    http_handling::start(pref.0, pref.1, pref.2);
 }

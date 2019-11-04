@@ -1,26 +1,12 @@
-#[allow(unused_imports)]
-use serde_json::{Result, Value};
+
 use serde::Serialize;
 use serde::Deserialize;
 
-#[allow(unused_imports)]
-use std::net::{SocketAddr, ToSocketAddrs};
-#[allow(unused_imports)]
-use std::net::Ipv4Addr;
-#[allow(unused_imports)]
-use std::io;
-#[allow(unused_imports)]
+use std::net::{SocketAddr};
+
 use std::io::Read;
-#[allow(unused_imports)]
 use std::io::Write;
-#[allow(unused_imports)]
 use std::fs::File;
-#[allow(unused_imports)]
-use std::io::prelude::*;
-#[allow(unused_imports)]
-use std::vec::Vec;
-#[allow(unused_imports)]
-use std::vec::Splice;
 use std::path::Path;
 
 
@@ -43,10 +29,12 @@ struct Pref {
     ip: String,
     port: u16,
     num_threads_max: u16,
+    root_path: String,
+    microservices: Vec<SocketAddr>
 }
 
 /* Returns a tcp SocketAddr type describing the user config */
-pub fn get_server_info() ->std::result::Result<(SocketAddr, u16), &'static str>
+pub fn get_server_settings() ->std::result::Result<(SocketAddr, u16, String), &'static str>
 {
     /* Open file*/
     let ret = File::open(Path::new("./config.json"));
@@ -75,7 +63,7 @@ pub fn get_server_info() ->std::result::Result<(SocketAddr, u16), &'static str>
         /* Create a SocketAddr object from the string */
         let ret: SocketAddr = ip_string.parse().unwrap();
         /* return the SocketAddr object and the max num thread in the preferences files */
-        Ok((ret, objects.num_threads_max))
+        Ok((ret, objects.num_threads_max, objects.root_path))
     }
     else {
         Err("\n[Pref] Error: Couldn't get preferences. Check Json formatting")
@@ -85,7 +73,7 @@ pub fn get_server_info() ->std::result::Result<(SocketAddr, u16), &'static str>
 pub fn create_default_file()
 {
     /* create a dummy JSON preference file */
-    let json_file = json!( {"ip":"127.0.0.1","port":80, "num_threads_max":20} );
+    let json_file = json!( {"ip":"127.0.0.1","port":80, "num_threads_max":20, "root_path":"."} );
     /* Create the file */
     let file = match File::create("./config.json")
     {
