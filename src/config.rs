@@ -9,28 +9,20 @@ use std::io::Write;
 use std::fs::File;
 use std::path::Path;
 
+#[derive(Serialize, Deserialize)]
+struct microservice
+{
+    address: SocketAddr,
+    name: String,
+}
 
-/**
-*   This module handles the preferences.
-*   get_server_info()       Returns a SocketAddr struct and a u16 in a tuple. If config.json
-*                           doesn't exist it will create one.
-*                               ->SocketAddr is the socket address.
-*                               ->u16 is the max number of threads
-*   create_default_file()   Creates a json file in current working directory
-*/
-
-/* Serde json needs this macro to know the type of the json
-object we are saving and reading.*/
-
-/* Easy  way to remove the "" in the returned string.
-Because now it is explicitly a string */
 #[derive(Serialize, Deserialize)]
 struct Pref {
     ip: String,
     port: u16,
     num_threads_max: u16,
     root_path: String,
-    microservices: Vec<SocketAddr>
+    microservices: Vec<microservice>
 }
 
 /* Returns a tcp SocketAddr type describing the user config */
@@ -73,7 +65,7 @@ pub fn get_server_settings() ->std::result::Result<(SocketAddr, u16, String), &'
 pub fn create_default_file()
 {
     /* create a dummy JSON preference file */
-    let json_file = json!( {"ip":"127.0.0.1","port":80, "num_threads_max":20, "root_path":"."} );
+    let json_file = json!( {"ip":"127.0.0.1","port":80, "num_threads_max":20, "root_path":".", "microservices": []} );
     /* Create the file */
     let file = match File::create("./config.json")
     {

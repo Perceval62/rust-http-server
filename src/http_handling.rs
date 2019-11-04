@@ -26,13 +26,13 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String)
     {
         let copy_root_path: String = root_path.clone();
         pool.execute(move ||
+        {
+            match handle_client(tcp_streams.unwrap(), copy_root_path)
             {
-                match handle_client(tcp_streams.unwrap(), copy_root_path)
-                {
-                    Ok(_) => println!("[Client handling thread] Log: Client request handled"),
-                    Err(err) => println!("[Client handling thread] Error: {}", err),
-                }
+                Ok(_) => println!("[Client handling thread] Log: Client request handled"),
+                Err(err) => println!("[Client handling thread] Error: {}", err),
             }
+        }
         );
     }
 }
@@ -50,33 +50,42 @@ pub fn print_man()
 fn handle_client(mut stream: std::net::TcpStream, root_path: String) -> Result<(), &'static str>
 {
     println!("[Main] Log: Incoming connections from: {}", stream.peer_addr().unwrap());
-    /* handle client */
-
-    /* create buffer with elements of type u8, with a length of 512 elements */
+    /* Get the request and split the words by whitespace */
     let mut buffer: [u8; 512] = [0; 512];
     stream.read(&mut buffer).unwrap();
-    /* Split request into its elements */
     let split_buffer = std::str::from_utf8(&buffer).unwrap();
-    /* Split the buffer by whitespaces */
     let mut elements_iter = split_buffer.split_whitespace();
-    let _filepath: &Path;
-    let mut _file_content: Vec<u8>;
+
+    println!("[Client handling thread] Log: Received http request.");
+
+    let requested_file: &Path;      //Preparing a buffer for the Path
+    let mut file_content: Vec<u8>;  //Preparing a buffer to store the file content
+
+    /* Get the command of the request */
     if elements_iter.next() == Some("GET")
     {
+        /* Get the requested file in the request */
         let copy = elements_iter.next().expect("End of request"); //clone_into(&mut file_string_buf);
 
-        let _filepath = Path::new(&copy);
+        requested_file = Path::new(&copy);
 
-        _file_content = get_file(_filepath, root_path);
-
+        file_content = match get_file(requested_file, root_path)
+        {
+            Ok(ok_val)  => ok_val,
+            Err(_err)       => {
+                            let response: Vec<u8> = String::from("HTTP/1.1 404 Not found\r\n\r\n<h1>404 Not found.</h1>").into_bytes();
+                            stream.write(&response).unwrap();
+                            panic!("Requested file could not be opened");
+                        }
+        };
         let mut response: Vec<u8> = String::from("HTTP/1.1 200 OK\r\n\r\n").into_bytes();
-        response.append(&mut _file_content);
+        response.append(&mut file_content);
         stream.write(&response).unwrap();
     }
     Ok(())
 }
 
-fn get_file( mut requested_file: &Path, root_path: String) -> Vec<u8>
+fn get_file( mut requested_file: &Path, root_path: String) -> Result<Vec<u8>, ()>
 {
     let index_html_string = "index.html";
 
@@ -91,23 +100,18 @@ fn get_file( mut requested_file: &Path, root_path: String) -> Vec<u8>
     println!("{}", string);
     let copy = std::path::Path::new(string);
 
-    /* Create buffer (using u8 because String expects an encoding)*/
-    /* This reads ascii */
     let mut ret_string: Vec<u8> = Vec::new();
 
-    /* Get file handle  */
     let ret = File::open(copy);
     let file: std::fs::File = match ret
     {
         Ok(ok_file) => {println!("[Client handling thread] Log: fetched file from local server."); ok_file},
-        Err(err) => panic!("[Client handling thread] Error: {}", err),
+        Err(err) => {println!("[Client handling thread] Error: {}", err); return Err(())},
     };
 
-    /* Get the content from the file */
     let mut reader = std::io::BufReader::new(file);
 
-    /* read the whole file, put it in a buffer, then return it */
-    reader.read_to_end(&mut ret_string).unwrap(); //(&mut ret_string).unwrap();
+    reader.read_to_end(&mut ret_string).unwrap();
 
-    return ret_string;
+    Ok(ret_string)
 }
