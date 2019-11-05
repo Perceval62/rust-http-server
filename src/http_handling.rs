@@ -22,6 +22,8 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String)
     println!("[Main] Log: Started the listener thread pool with {} maximum threads", num_threads_max);
 
     let pool = ThreadPool::new(num_threads_max as usize);
+    /* Handle exit signals, if thread is not joined, the program will leak memory */
+
     for tcp_streams in listener.incoming()
     {
         let copy_root_path: String = root_path.clone();
@@ -30,10 +32,9 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String)
             match handle_client(tcp_streams.unwrap(), copy_root_path)
             {
                 Ok(_) => println!("[Client handling thread] Log: Client request handled"),
-                Err(err) => println!("[Client handling thread] Error: {}", err),
+                Err(err) => println!("[Client handling thread] Error: Shutting down thread because of : following error\n{}", err),
             }
-        }
-        );
+        });
     }
 }
 
@@ -59,8 +60,8 @@ fn handle_client(mut stream: std::net::TcpStream, root_path: String) -> Result<(
 
     println!("[Client handling thread] Log: Received http request.");
 
-    let requested_file: &Path;      //Preparing a buffer for the Path
-    let mut file_content: Vec<u8>;  //Preparing a buffer to store the file content
+    let mut requested_file: &Path;      //Preparing a buffer for the Path
+    let mut file_content: Vec<u8> = Vec::new();  //Preparing a buffer to store the file content
 
     /* Get the command of the request */
     if elements_iter.next() == Some("GET")
@@ -70,23 +71,31 @@ fn handle_client(mut stream: std::net::TcpStream, root_path: String) -> Result<(
         if path_string.contains("/app/")
         {
             //rediriger la requete
+            println!("[Client handling thread]: Functionnality not implemmented yet")
         }
         else
         {
-        //sinon, déservir le chemin demandé
+            //sinon, déservir le chemin demandé
             requested_file = Path::new(&path_string);
-
-            file_content = match get_file(requested_file, root_path)
+            let ret = get_file(requested_file, root_path);
+            match ret
             {
                 /* if file exists */
-                Ok(ok_val)  => ok_val,
+                Ok(ok_val)  => file_content = ok_val,
                 /* if file doesnt exist, create a temporary one with 404 error*/
                 Err(_err)       => {
                                 let response: Vec<u8> = String::from("HTTP/1.1 404 Not found\r\n\r\n<h1>404 Not found.</h1>").into_bytes();
                                 stream.write(&response).unwrap();
-                                panic!("Requested file could not be opened");
+                                println!("[Client handling thread] Warning: Requested file could not be opened");
+                                ()
                             }
             };
+
+            if file_content.is_empty()
+            {
+                return Err("[Client handling thread] Warning: client requested file that is not existant or outside of html root folder.");
+            }
+
             let mut response: Vec<u8> = String::from("HTTP/1.1 200 OK\r\n\r\n").into_bytes();
             response.append(&mut file_content);
             stream.write(&response).unwrap();
@@ -107,7 +116,7 @@ fn get_file( mut requested_file: &Path, root_path: String) -> Result<Vec<u8>, ()
     }
 
     let string = &format!("{}{}", root_path, requested_file.to_str().unwrap());
-    println!("{}", string);
+    println!("[Client handling thread] Log: Get request is asking for {}", string);
     let copy = std::path::Path::new(string);
 
     let mut ret_string: Vec<u8> = Vec::new();

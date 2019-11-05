@@ -45,4 +45,5 @@ fn bootstrap()
     let configuration = config::get_server_settings().unwrap();
     let microservice_list: Vec<config::Microservice> = Vec::new();
     http_handling::start(configuration.0, configuration.1, configuration.2);
+
 }
