@@ -50,6 +50,7 @@ pub fn print_man()
 fn handle_client(mut stream: std::net::TcpStream, root_path: String) -> Result<(), &'static str>
 {
     println!("[Main] Log: Incoming connections from: {}", stream.peer_addr().unwrap());
+
     /* Get the request and split the words by whitespace */
     let mut buffer: [u8; 512] = [0; 512];
     stream.read(&mut buffer).unwrap();
@@ -64,23 +65,32 @@ fn handle_client(mut stream: std::net::TcpStream, root_path: String) -> Result<(
     /* Get the command of the request */
     if elements_iter.next() == Some("GET")
     {
-        /* Get the requested file in the request */
-        let copy = elements_iter.next().expect("End of request"); //clone_into(&mut file_string_buf);
-
-        requested_file = Path::new(&copy);
-
-        file_content = match get_file(requested_file, root_path)
+        let path_string = elements_iter.next().expect("Get request invalid");
+        //Si la requete contient le chemin /app/
+        if path_string.contains("/app/")
         {
-            Ok(ok_val)  => ok_val,
-            Err(_err)       => {
-                            let response: Vec<u8> = String::from("HTTP/1.1 404 Not found\r\n\r\n<h1>404 Not found.</h1>").into_bytes();
-                            stream.write(&response).unwrap();
-                            panic!("Requested file could not be opened");
-                        }
-        };
-        let mut response: Vec<u8> = String::from("HTTP/1.1 200 OK\r\n\r\n").into_bytes();
-        response.append(&mut file_content);
-        stream.write(&response).unwrap();
+            //rediriger la requete
+        }
+        else
+        {
+        //sinon, déservir le chemin demandé
+            requested_file = Path::new(&path_string);
+
+            file_content = match get_file(requested_file, root_path)
+            {
+                /* if file exists */
+                Ok(ok_val)  => ok_val,
+                /* if file doesnt exist, create a temporary one with 404 error*/
+                Err(_err)       => {
+                                let response: Vec<u8> = String::from("HTTP/1.1 404 Not found\r\n\r\n<h1>404 Not found.</h1>").into_bytes();
+                                stream.write(&response).unwrap();
+                                panic!("Requested file could not be opened");
+                            }
+            };
+            let mut response: Vec<u8> = String::from("HTTP/1.1 200 OK\r\n\r\n").into_bytes();
+            response.append(&mut file_content);
+            stream.write(&response).unwrap();
+        }
     }
     Ok(())
 }

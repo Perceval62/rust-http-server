@@ -43,7 +43,7 @@ pub fn get_server_settings() ->std::result::Result<(SocketAddr, u16, String), &'
     let mut content_string: String = String::new();
     /* Get the text from file to buffer with the help of our reader object */
     reader.read_to_string(&mut content_string).unwrap();
-    /* Get a json serde object */
+    /* Get a json serde object from the bytes that were read */
     let json_object = serde_json::from_str(&content_string);
     /* If JSON formatting is ok*/
     if json_object.is_ok(){
@@ -71,7 +71,7 @@ pub fn create_default_file()
     {
         Ok(file_handle) => file_handle,
         Err(_err) => panic!("   [Pref] Error: Check files permissions, \n
-                                could not write preferences file.")
+                                could not write config file.")
     };
     /* Convert the serde strructure to a rust string  */
     let data = serde_json::to_string_pretty(&json_file).unwrap();
@@ -82,6 +82,5 @@ pub fn create_default_file()
     /* writer & file going out of scope, the file is going to be closed and dropped */
     writer.flush().unwrap();
     /*  Make sure to drop the buffer writer */
-    std::mem::drop(writer);
     println!("[Pref] Log: Created default config file.");
 }
