@@ -10,7 +10,7 @@ use std::fs::File;
 use std::path::Path;
 
 #[derive(Serialize, Deserialize)]
-struct microservice
+pub struct Microservice
 {
     address: SocketAddr,
     name: String,
@@ -22,7 +22,7 @@ struct Pref {
     port: u16,
     num_threads_max: u16,
     root_path: String,
-    microservices: Vec<microservice>
+    microservices: Vec<Microservice>
 }
 
 /* Returns a tcp SocketAddr type describing the user config */

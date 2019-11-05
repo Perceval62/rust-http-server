@@ -5,9 +5,23 @@ use std::io::Write;
 
 use std::net::SocketAddr;
 
+mod config;
+
+/*  */
+/* This module gives a bunch of methods to help redirect the GET/POST to external APIs */
+
+pub fn parse_microserve_object() -> Result<config::Microservice, ()>
+{
+    let output_buffer: config::Microservice = Vec::new(config::Microservice);
 
 
-pub fn_redirect_request()
+
+    return output_buffer;
+}
+
+fn
+
+pub fn redirect_request() -> Result<(), ()>
 {
 
 }
