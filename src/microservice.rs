@@ -21,23 +21,33 @@ use crate::config::Microservice;
         //take microservice description from config.json
     //look for the /app/ in path
 
-pub fn parse_request_string(requested_path: &str) -> Result<(), ()>
+pub fn parse_request_string(requested_path: &str, mut microservice_list: Vec<Microservice>) -> Result<SocketAddr, &'static str>
 {
-    let output_buffer: Vec<Microservice> = Vec::new();
-    let compare_string = requested_path.clone();
-
-    let parsed_microservice_name: String = String::new();
-    //get index of /app/ slice in the request string
     let start_index: usize = requested_path.find("/app/").unwrap();
 
-    let long_name_of_service: &str = &requested_path[start_index..requested_path.len() as usize];
+    let name_of_service: &str = &requested_path[(start_index + 5)..requested_path.len() as usize];
 
-    println!("[microservice] Log: Client is asking for the following microservice: {}", long_name_of_service);
+    println!("[microservice] Log: Client is asking for the following microservice: {}", name_of_service);
 
-    
+    if microservice_list.is_empty()
+    {
+        return Err("[microservice] Error: There is no microservices in the configuration file.");
+    }
+
+    let microservice_list_iter = microservice_list.iter_mut();
+    /* Check the list of microservices */
+    for i in microservice_list_iter
+    {
+        /* if a name of a microservice in the list matches the requested microservice*/
+        if i.name == name_of_service
+        {
+            let return_address: SocketAddr = i.address;
+            println!("[microservice] Log: Microservice with name {} was found at adress {}", name_of_service, i.address);
+            return Ok(return_address);
+        }
+    }
     //after /app/
-    Ok(())
-
+    Err("[microservice] Error: There is no microservices of that name configured.")
 }
 
 //redirect request
@@ -45,7 +55,7 @@ pub fn parse_request_string(requested_path: &str) -> Result<(), ()>
     //send data get/post request
 
 
-pub fn redirect_request(microservice_socket: SocketAddr) -> Result<(), ()>
+pub fn redirect_request(microservice_socket: SocketAddr, http_request: String) -> Result<(), ()>
 {
     Ok(())
 }

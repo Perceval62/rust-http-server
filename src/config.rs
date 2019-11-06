@@ -8,11 +8,13 @@ use std::io::Read;
 use std::io::Write;
 use std::fs::File;
 use std::path::Path;
+
 #[derive(Serialize, Deserialize)]
+#[derive(Clone)]
 pub struct Microservice
 {
-    address: SocketAddr,
-    name: String,
+    pub address: SocketAddr,
+    pub name: String,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -25,7 +27,7 @@ struct Pref {
 }
 
 /* Returns a tcp SocketAddr type describing the user config */
-pub fn get_server_settings() ->std::result::Result<(SocketAddr, u16, String), &'static str>
+pub fn get_server_settings() ->std::result::Result<(SocketAddr, u16, String, Vec<Microservice>), &'static str>
 {
     /* Open file*/
     let ret = File::open(Path::new("./config.json"));
@@ -54,7 +56,7 @@ pub fn get_server_settings() ->std::result::Result<(SocketAddr, u16, String), &'
         /* Create a SocketAddr object from the string */
         let ret: SocketAddr = ip_string.parse().unwrap();
         /* return the SocketAddr object and the max num thread in the preferences files */
-        Ok((ret, objects.num_threads_max, objects.root_path))
+        Ok((ret, objects.num_threads_max, objects.root_path, objects.microservices))
     }
     else {
         Err("\n[Pref] Error: Couldn't get preferences. Check Json formatting")
@@ -64,7 +66,7 @@ pub fn get_server_settings() ->std::result::Result<(SocketAddr, u16, String), &'
 pub fn create_default_file()
 {
     /* create a dummy JSON preference file */
-    let json_file = json!( {"ip":"127.0.0.1","port":80, "num_threads_max":20, "root_path":".", "microservices": []} );
+    let json_file = json!( {"ip":"127.0.0.1","port":80, "num_threads_max":20, "root_path":".", "microservices": [{"address":"127.0.0.1:80","name":"example"}]});
     /* Create the file */
     let file = match File::create("./config.json")
     {
