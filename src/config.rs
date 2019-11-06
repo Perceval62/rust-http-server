@@ -8,7 +8,6 @@ use std::io::Read;
 use std::io::Write;
 use std::fs::File;
 use std::path::Path;
-
 #[derive(Serialize, Deserialize)]
 pub struct Microservice
 {

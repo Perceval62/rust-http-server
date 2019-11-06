@@ -1,5 +1,6 @@
 mod config;
 mod http_handling;
+mod microservice;
 
 #[macro_use]
 extern crate serde_json;

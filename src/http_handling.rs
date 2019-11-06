@@ -1,3 +1,4 @@
+
 use std::path::Path;
 use std::fs::File;
 use std::io::Read;
@@ -5,6 +6,8 @@ use std::io::Write;
 
 use std::net::SocketAddr;
 use threadpool::ThreadPool;
+
+use crate::microservice;
 
 pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String)
 {
@@ -60,7 +63,7 @@ fn handle_client(mut stream: std::net::TcpStream, root_path: String) -> Result<(
 
     println!("[Client handling thread] Log: Received http request.");
 
-    let mut requested_file: &Path;      //Preparing a buffer for the Path
+    let requested_file: &Path;      //Preparing a buffer for the Path
     let mut file_content: Vec<u8> = Vec::new();  //Preparing a buffer to store the file content
 
     /* Get the command of the request */
@@ -71,7 +74,9 @@ fn handle_client(mut stream: std::net::TcpStream, root_path: String) -> Result<(
         if path_string.contains("/app/")
         {
             //rediriger la requete
-            println!("[Client handling thread]: Functionnality not implemmented yet")
+            println!("[Client handling thread]: Functionnality not finished yet");
+            let ret = microservice::parse_request_string(path_string);
+
         }
         else
         {
