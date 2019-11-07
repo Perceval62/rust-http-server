@@ -82,7 +82,7 @@ fn handle_client(mut stream: std::net::TcpStream, root_path: String, microservic
             let microservice_addr: SocketAddr;
             match ret
             {
-                Ok(socket) => {println!("[Client handling thread] Log: redirecting."); microservice_addr = ret.unwrap()},
+                Ok(socket) => {println!("[Client handling thread] Log: redirecting."); microservice_addr = socket},
                 Err(err) => {println!("[Client handling thread] Log: {}", err); panic!("[Client handling thread] Error: thread terminated.")}
             }
             let ret = microservice::redirect_request(microservice_addr, http_request.to_string());

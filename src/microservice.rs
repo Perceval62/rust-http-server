@@ -1,10 +1,8 @@
 
-use std::path::Path;
-use std::fs::File;
-use std::io::Read;
 use std::io::Write;
 
 use std::net::SocketAddr;
+use std::net::TcpStream;
 
 use crate::config::Microservice;
 
@@ -54,8 +52,14 @@ pub fn parse_request_string(requested_path: &str, mut microservice_list: Vec<Mic
     //open socket to microservice
     //send data get/post request
 
-
 pub fn redirect_request(microservice_socket: SocketAddr, http_request: String) -> Result<(), ()>
 {
+    let socket = match TcpStream::connect(microservice_socket)
+    {
+        Ok(socket) => {println!("[microservice] Log: Connected to microservice"); socket}
+        Err(err) => {println!("[microservice] Log: Couldn't connect."); panic!("{}", err)},
+    };
+    let mut writer = std::io::BufWriter::new(socket);
+    writer.write(http_request.as_bytes()).unwrap();
     Ok(())
 }
