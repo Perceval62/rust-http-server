@@ -4,6 +4,7 @@ mod microservice;
 
 #[macro_use]
 extern crate serde_json;
+use std::net::SocketAddr;
 use std::env;
 
 /*
@@ -19,9 +20,29 @@ fn main() {
     {
         match args[1].as_str()
         {
-            "help"              => { http_handling::print_man(); return() },
-            "generate-config"   => { config::create_default_file(); return() },
-            "start"             => { bootstrap(); return() },
+            "help"              => {
+                                        http_handling::print_man();
+                                        return()
+                                    },
+
+            "generate-config"   => {
+                                        config::create_default_file();
+                                        return()
+                                    },
+
+            "start"             => {
+                                        bootstrap();
+                                        return()
+                                    },
+
+            "start-with"             => {
+                                            if args.len() > 2
+                                            {
+                                                let address = args[2].clone();
+                                                bootstrap_with_args(address);
+                                                return()
+                                            }
+                                        },
             /* case garbage */
             _ => {println!("[Main] Error: Unrecognised command line parameter.");},
         };
@@ -30,12 +51,16 @@ fn main() {
     http_handling::print_man();
 }
 
-/* TODO: make it possible to not use the json config file & launch with the command line args */
-fn parse_input() -> Result<String, ()>
+/* Starts the server*/
+fn bootstrap_with_args(address_string: String)
 {
-    Ok( String::new() )
+    println!("[Main] Log: Vincent Perrier Rust Server Backend.");
+    println!("[Main] Warning: Usually needs to run with root/admin privileges.");
+    /* Get the preferences in a tuple */
+    let configuration = config::get_server_settings().unwrap();
+    let address: SocketAddr = address_string.parse().unwrap();
+    http_handling::start(address, configuration.1, configuration.2, configuration.3);
 }
-
 
 /* Starts the server*/
 fn bootstrap()
