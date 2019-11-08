@@ -56,21 +56,24 @@ pub fn get_server_settings() ->std::result::Result<(SocketAddr, u16, String, Vec
         /* Create a SocketAddr object from the string */
         let ret: SocketAddr = ip_string.parse().unwrap();
 
-
-        for iter in &objects.microservices
+        /* Only check for microservice infinite recursion bug if the microservice contains something*/
+        if objects.microservices.is_empty() == false
         {
-            if iter.address == ret
+            /* Avoid infinite recursion if a microservice shares the same address and port than the http server */
+            for iter in &objects.microservices
             {
-                println!("Error in JSON configuration, a microservice is configured with the same\naddress and port as the http server binding.\nThis would create a recursive loop if a client request the faulty microservice.");
-                panic!("[Config] Error: Initialisation failed due to faulty configuration.");
+                if iter.address == ret
+                {
+                    println!("Error in JSON configuration, a microservice is configured with the same\naddress and port as the http server binding.\nThis would create a recursive loop if a client request the faulty microservice.");
+                    panic!("[Config] Error: Initialisation failed due to faulty configuration.");
+                }
             }
         }
-
         /* return the SocketAddr object and the max num thread in the preferences files */
         Ok((ret, objects.num_threads_max, objects.root_path, objects.microservices))
     }
     else {
-        Err("\n[Config] Error: Couldn't get preferences. Check Json formatting")
+        Err("\n[Config] Error: Couldn't parse configuration. Check Json formatting !")
     }
 }
 
