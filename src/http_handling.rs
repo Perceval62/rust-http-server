@@ -26,7 +26,6 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String, micr
     println!("[Main] Log: Started the listener thread pool with {} maximum threads", num_threads_max);
 
     let pool = ThreadPool::new(num_threads_max as usize);
-    /* Handle exit signals, if thread is not joined, the program will leak memory */
 
     for tcp_streams in listener.incoming()
     {
