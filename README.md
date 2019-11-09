@@ -1,6 +1,8 @@
 # HTTP backend program with microservices redirection
 
 ## Description
+This a personal hobby project. I will use it on my own platform when I get around to build it.
+
 This neat little utility serves a website and handles "HTPP - GET" requests like any
 other HTTP server. It can be useful to isolate and modularize the backend of a web app.
 
