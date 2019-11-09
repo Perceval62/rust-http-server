@@ -1,4 +1,5 @@
 
+use crate::config::Microservice;
 use std::path::Path;
 use std::fs::File;
 use std::io::Read;
@@ -9,7 +10,7 @@ use threadpool::ThreadPool;
 
 use crate::microservice;
 
-pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String)
+pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String, microservice_list: Vec<Microservice>)
 {
     println!("[Main] Log: Got {} maximum thread.", max_thread_count);
     let num_threads_max: u16 = max_thread_count;
@@ -25,14 +26,14 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String)
     println!("[Main] Log: Started the listener thread pool with {} maximum threads", num_threads_max);
 
     let pool = ThreadPool::new(num_threads_max as usize);
-    /* Handle exit signals, if thread is not joined, the program will leak memory */
 
     for tcp_streams in listener.incoming()
     {
+        let list = microservice_list.clone();
         let copy_root_path: String = root_path.clone();
         pool.execute(move ||
         {
-            match handle_client(tcp_streams.unwrap(), copy_root_path)
+            match handle_client(tcp_streams.unwrap(), copy_root_path, list)
             {
                 Ok(_) => println!("[Client handling thread] Log: Client request handled"),
                 Err(err) => println!("[Client handling thread] Error: Shutting down thread because of : following error\n{}", err),
@@ -51,13 +52,14 @@ pub fn print_man()
     );
 }
 
-fn handle_client(mut stream: std::net::TcpStream, root_path: String) -> Result<(), &'static str>
+fn handle_client(mut stream: std::net::TcpStream, root_path: String, microservice_list: Vec<Microservice>) -> Result<(), &'static str>
 {
     println!("[Main] Log: Incoming connections from: {}", stream.peer_addr().unwrap());
 
     /* Get the request and split the words by whitespace */
     let mut buffer: [u8; 512] = [0; 512];
     stream.read(&mut buffer).unwrap();
+    let http_request = std::str::from_utf8(&buffer).unwrap();
     let split_buffer = std::str::from_utf8(&buffer).unwrap();
     let mut elements_iter = split_buffer.split_whitespace();
 
@@ -69,14 +71,24 @@ fn handle_client(mut stream: std::net::TcpStream, root_path: String) -> Result<(
     /* Get the command of the request */
     if elements_iter.next() == Some("GET")
     {
-        let path_string = elements_iter.next().expect("Get request invalid");
+        let path_string = elements_iter.next().expect("Get request invalid.");
         //Si la requete contient le chemin /app/
         if path_string.contains("/app/")
         {
             //rediriger la requete
-            println!("[Client handling thread]: Functionnality not finished yet");
-            let ret = microservice::parse_request_string(path_string);
-
+            println!("[Client handling thread]: Functionnality not finished yet.");
+            let ret = microservice::parse_request_string(path_string, microservice_list);
+            let microservice_addr: SocketAddr;
+            match ret
+            {
+                Ok(socket) => {println!("[Client handling thread] Log: redirecting."); microservice_addr = socket},
+                Err(err) => {println!("[Client handling thread] Log: {}", err); panic!("[Client handling thread] Error: thread terminated.")}
+            }
+            let ret = microservice::redirect_request(microservice_addr, http_request.to_string());
+            match ret{
+                Ok(()) => println!("[Client handling thread] Log: redirection was succeful."),
+                Err(()) => println!("[Client handling thread] Error: redirection failed.")
+            }
         }
         else
         {
