@@ -34,9 +34,8 @@ pub fn parse_request_string(requested_path: &str) -> Result<(), ()>
 
     println!("[microservice] Log: Client is asking for the following microservice: {}", long_name_of_service);
 
-    
     //after /app/
-    Ok(())
+    Ok( () )
 
 }
 
