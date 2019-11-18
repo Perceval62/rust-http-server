@@ -20,7 +20,8 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String, micr
     {
         Ok(listener) => {listener},
         Err(err) => {   println!("[Main] Log: could not bind address. Check for admin privileges.");
-                        panic!(err)}
+                        panic!(err)
+                    }
     };
     //let mut thread_list = Vec::with_capacity(num_threads_max as usize);
     println!("[Main] Log: Started the listener thread pool with {} maximum threads", num_threads_max);
