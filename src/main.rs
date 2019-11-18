@@ -4,47 +4,45 @@ mod microservice;
 
 #[macro_use]
 extern crate serde_json;
-use std::net::SocketAddr;
 use std::env;
+use std::net::SocketAddr;
 
 /*
 *   Main routine, gets command line args and launches routines accordingly.
 */
 
 fn main() {
-
     /* Get command line arguments */
     let args: Vec<String> = env::args().collect();
     /* See if user wants to generate server config */
-    if args.len() > 1
-    {
-        match args[1].as_str()
-        {
-            "help"              => {
-                                        http_handling::print_man();
-                                        return()
-                                    },
+    if args.len() > 1 {
+        match args[1].as_str() {
+            "help" => {
+                http_handling::print_man();
+                return ();
+            }
 
-            "generate-config"   => {
-                                        config::create_default_file();
-                                        return()
-                                    },
+            "generate-config" => {
+                config::create_default_file();
+                return ();
+            }
 
-            "start"             => {
-                                        bootstrap();
-                                        return()
-                                    },
+            "start" => {
+                bootstrap();
+                return ();
+            }
 
-            "start-with"             => {
-                                            if args.len() > 2
-                                            {
-                                                let address = args[2].clone();
-                                                bootstrap_with_args(address);
-                                                return()
-                                            }
-                                        },
+            "start-with" => {
+                if args.len() > 2 {
+                    let address = args[2].clone();
+                    bootstrap_with_args(address);
+                    return ();
+                }
+            }
             /* case garbage */
-            _ => {println!("[Main] Error: Unrecognised command line parameter.");},
+            _ => {
+                println!("[Main] Error: Unrecognised command line parameter.");
+            }
         };
     }
     println!("Please use the following options:");
@@ -52,8 +50,7 @@ fn main() {
 }
 
 /* Starts the server*/
-fn bootstrap_with_args(address_string: String)
-{
+fn bootstrap_with_args(address_string: String) {
     println!("[Main] Log: Vincent Perrier Rust Server Backend.");
     println!("[Main] Warning: Usually needs to run with root/admin privileges.");
     /* Get the preferences in a tuple */
@@ -63,11 +60,15 @@ fn bootstrap_with_args(address_string: String)
 }
 
 /* Starts the server*/
-fn bootstrap()
-{
+fn bootstrap() {
     println!("[Main] Log: Vincent Perrier Rust Server Backend.");
     println!("[Main] Warning: Usually needs to run with root/admin privileges.");
     /* Get the preferences in a tuple */
     let configuration = config::get_server_settings().unwrap();
-    http_handling::start(configuration.0, configuration.1, configuration.2, configuration.3);
+    http_handling::start(
+        configuration.0,
+        configuration.1,
+        configuration.2,
+        configuration.3,
+    );
 }
