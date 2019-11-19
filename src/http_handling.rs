@@ -24,16 +24,15 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String, micr
     };
     //let mut thread_list = Vec::with_capacity(num_threads_max as usize);
     println!("[Main] Log: Started the listener thread pool with {} maximum threads", num_threads_max);
-
     let pool = ThreadPool::new(num_threads_max as usize);
-
-    for tcp_streams in listener.incoming()
-    {
+    loop{
+        let tcp_streams = listener.accept().unwrap();
         let list = microservice_list.clone();
+
         let copy_root_path: String = root_path.clone();
         pool.execute(move ||
         {
-            match handle_client(tcp_streams.unwrap(), copy_root_path, list)
+            match handle_client(tcp_streams.0, copy_root_path, list)
             {
                 Ok(_) => println!("[Client handling thread] Log: Client request handled"),
                 Err(err) => println!("[Client handling thread] Error: Shutting down thread because of : following error\n{}", err),
@@ -41,7 +40,6 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String, micr
         });
     }
 }
-
 pub fn print_man()
 {
     println!(
