@@ -1,5 +1,7 @@
 
 use crate::config::Microservice;
+use crate::microservice;
+
 use std::path::Path;
 use std::fs::File;
 use std::io::Read;
@@ -8,7 +10,6 @@ use std::io::Write;
 use std::net::SocketAddr;
 use threadpool::ThreadPool;
 
-use crate::microservice;
 
 pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String, microservice_list: Vec<Microservice>)
 {

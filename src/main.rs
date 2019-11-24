@@ -27,14 +27,14 @@ fn main() {
             }
 
             "start" => {
-                bootstrap();
+                boot();
                 return ();
             }
 
             "start-with" => {
                 if args.len() > 2 {
                     let address = args[2].clone();
-                    bootstrap_with_args(address);
+                    boot_with_args(address);
                     return ();
                 }
             }
@@ -49,7 +49,7 @@ fn main() {
 }
 
 /* Starts the server*/
-fn bootstrap_with_args(address_string: String) {
+fn boot_with_args(address_string: String) {
     println!("[Main] Log: Vincent Perrier Rust Server Backend.");
     println!("[Main] Warning: Usually needs to run with root/admin privileges.");
     /* Get the preferences in a tuple */
@@ -59,7 +59,7 @@ fn bootstrap_with_args(address_string: String) {
 }
 
 /* Starts the server*/
-fn bootstrap() {
+fn boot() {
     println!("[Main] Log: Vincent Perrier Rust Server Backend.");
     println!("[Main] Warning: Usually needs to run with root/admin privileges.");
     /* Get the preferences in a tuple */

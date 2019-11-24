@@ -1,22 +1,10 @@
-use std::io::Write;
+use crate::config::Microservice;
 
+use std::io::Write;
 use std::net::SocketAddr;
 use std::net::TcpStream;
 
-use crate::config::Microservice;
-
-/*  */
-
 /* This module gives a bunch of methods to help redirect the GET/POST to external APIs */
-
-//stuff to do
-
-//parse request
-//take get request
-//in the requested path, after the /app/ get the name of the microservice
-//check our list of microservices
-//take microservice description from config.json
-//look for the /app/ in path
 
 pub fn parse_request_string(
     requested_path: &str,
