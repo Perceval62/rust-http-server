@@ -1,7 +1,4 @@
-use std::fs::File;
-use std::io::Read;
 use std::io::Write;
-use std::path::Path;
 
 use std::net::SocketAddr;
 use std::net::TcpStream;
@@ -25,10 +22,6 @@ pub fn parse_request_string(
     requested_path: &str,
     mut microservice_list: Vec<Microservice>,
 ) -> Result<SocketAddr, &'static str> {
-    let output_buffer: Vec<Microservice> = Vec::new();
-    let compare_string = requested_path.clone();
-
-    let parsed_microservice_name: String = String::new();
     //get index of /app/ slice in the request string
     let start_index: usize = requested_path.find("/app/").unwrap();
 

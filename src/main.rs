@@ -15,8 +15,7 @@ fn main() {
     /* Get command line arguments */
     let args: Vec<String> = env::args().collect();
     /* See if user wants to generate server config */
-    if args.len() > 1 {
-        match args[1].as_str() {
+    if args.len() > 1 {        match args[1].as_str() {
             "help" => {
                 http_handling::print_man();
                 return ();
@@ -39,7 +38,7 @@ fn main() {
                     return ();
                 }
             }
-            /* case garbage */
+            /* case garbage is given */
             _ => {
                 println!("[Main] Error: Unrecognised command line parameter.");
             }
