@@ -39,6 +39,7 @@ Create a basic JSON configuration file using the following command:
 ~~~~
 ./target/release/backend generate-config
 ~~~~
+Open the config file and put the root path of the html book under the "root_path" field. 
 
 Start the server with
 ~~~~
@@ -47,3 +48,6 @@ Start the server with
 Note that you might have to launch it in sudo.
 
 For more information about the "config.json", refer to the configuration guide (W.I.P).
+
+# What was learned
+During this project, I was able to become more familiar with the Rust programming language. I also got more familiar with tcp sockets in Rust. 
