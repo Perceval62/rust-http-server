@@ -1,7 +1,7 @@
-# HTTP backend program with microservices redirection
+#HTTP backend program with microservices redirection
 
 ## Description
-This a personal hobby project. I will use it on my own platform when I get around to build it.
+This a personal hobby project. I wanted to learn about backend web development. I will use it on my own platform when I get around to build it.
 
 This neat little utility serves a website and handles "HTPP - GET" requests like any
 other HTTP server. It can be useful to isolate and modularize the backend of a web app.
@@ -27,24 +27,23 @@ To install Rust and cargo, please visit their [Link to the rust website](officia
 
 ## Quick start
 
-To get started, cd into the project directory with a terminal and generate the default JSON
-configuration file using the following command:
-~~~~
-cargo run generate-config
-~~~~
-After successfully running the command, a file named "config.json" should be located in
-the root directory of the project.
+clone the repo and cd into the project's folder.
 
-Edit at your heart's content !
-Feel free to remove the template microservice in the array of the JSON file.
-
-When ready to launch the server, simply run.
+Build the project with:
 ~~~~
-sudo cargo run start
+cargo build --release
+~~~~
+The binary file is located in target/release/
+
+Create a basic JSON configuration file using the following command:
+~~~~
+./target/release/backend generate-config
 ~~~~
 
-It is also possible to run
+Start the server with
 ~~~~
-cargo run help
+./target/release/backend start
 ~~~~
-For more information about the "config.json", refer to the configuration guide.
+Note that you might have to launch it in sudo.
+
+For more information about the "config.json", refer to the configuration guide (W.I.P).
