@@ -45,9 +45,9 @@ pub fn print_man()
 {
     println!(
         "Rust Server Backend: Vincent Perrier\n
-        cargo-run generate-config  -> Generates a default \"config.json\" file.\n
-        cargo-run help             -> Prints program usage.\n
-        cargo-run start            -> Starts the web server\n"
+cargo-run generate-config  -> Generates a default \"config.json\" file.\n
+cargo-run help             -> Prints program usage.\n
+cargo-run start            -> Starts the web server\n"
     );
 }
 
@@ -89,10 +89,12 @@ fn handle_client(mut stream: std::net::TcpStream, root_path: String, microservic
                 }
             }
             let ret = microservice::redirect_request(microservice_addr, http_request.to_string());
-            match ret{
-                Ok(()) => println!("[Client handling thread] Log: redirection was succeful."),
-                Err(()) => println!("[Client handling thread] Error: redirection failed.")
-            }
+            let micro_service_response: String = match ret{
+                Ok(resp) => { println!("[Client handling thread] Log: redirection was succeful."); resp },
+                Err(()) => {println!("[Client handling thread] Error: redirection failed."); return Err("No response from service")},
+            };
+
+            stream.write(micro_service_response.as_bytes()).unwrap();
         }
         else
         {

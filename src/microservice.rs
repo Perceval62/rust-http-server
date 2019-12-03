@@ -1,18 +1,22 @@
 use crate::config::Microservice;
-
 use std::io::Write;
+use std::io::Read;
 use std::net::SocketAddr;
 use std::net::TcpStream;
 
-/* This module gives a bunch of methods to help redirect the GET/POST to external APIs */
-
+/* Parses the the GET request and returns a socketAddr to it */
 pub fn parse_request_string(
     requested_path: &str,
     mut microservice_list: Vec<Microservice>,
 ) -> Result<SocketAddr, &'static str> {
-    //get index of /app/ slice in the request string
-    let start_index: usize = requested_path.find("/app/").unwrap();
 
+    /* Check the if at least 1 microservice exists in the config.json file. */
+    if microservice_list.is_empty() {
+        return Err("[microservice] Error: There is no microservices in the configuration file.");
+    }
+
+    /* Parse the requested_path and get the name of the service that was requested. */
+    let start_index: usize = requested_path.find("/app/").unwrap();
     let name_of_service: &str = &requested_path[(start_index + 5)..requested_path.len() as usize];
 
     println!(
@@ -20,14 +24,9 @@ pub fn parse_request_string(
         name_of_service
     );
 
-    if microservice_list.is_empty() {
-        return Err("[microservice] Error: There is no microservices in the configuration file.");
-    }
-
+    /* Go through the list and look for a match with what was requested. */
     let microservice_list_iter = microservice_list.iter_mut();
-    /* Check the list of microservices */
     for i in microservice_list_iter {
-        /* if a name of a microservice in the list matches the requested microservice*/
         if i.name == name_of_service {
             let return_address: SocketAddr = i.address;
             println!(
@@ -37,26 +36,34 @@ pub fn parse_request_string(
             return Ok(return_address);
         }
     }
-    //after /app/
+
+    /* If no matching elements were found in the list return an error. */
     Err("[microservice] Error: There is no microservices of that name configured.")
 }
 
-//redirect request
-//open socket to microservice
-//send data get/post request
 
-pub fn redirect_request(microservice_socket: SocketAddr, http_request: String) -> Result<(), ()> {
-    let socket = match TcpStream::connect(microservice_socket) {
+/* Sends a string through a socket */
+pub fn redirect_request(microservice_socket: SocketAddr, http_request: String) -> Result<String, ()> {
+
+    /* Open a socket to the address given in the parameters */
+    let mut socket = match TcpStream::connect(microservice_socket) {
+
         Ok(socket) => {
             println!("[microservice] Log: Connected to microservice");
             socket
         }
+
         Err(err) => {
             println!("[microservice] Log: Couldn't connect.");
             panic!("{}", err)
         }
+
     };
-    let mut writer = std::io::BufWriter::new(socket);
-    writer.write(http_request.as_bytes()).unwrap();
-    Ok(())
+    /* Write the string in the socket */
+    socket.write(http_request.as_bytes()).unwrap();
+
+    /* Wait for a response */
+    let mut response: String = String::new();
+    socket.read_to_string(&mut response).unwrap();
+    Ok(response)
 }
