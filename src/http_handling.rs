@@ -1,4 +1,6 @@
+/* File http_handling.rs */
 
+/* imports */
 use crate::config::Microservice;
 use crate::microservice;
 
@@ -10,7 +12,9 @@ use std::io::Write;
 use std::net::SocketAddr;
 use threadpool::ThreadPool;
 
-
+/* start, starts the web server, takes in an adress, a number of threads, a path to the html root
+ * folder and a list of Microservice objects. Does not return anything.
+ */
 pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String, microservice_list: Vec<Microservice>)
 {
     println!("[Main] Log: Got {} maximum thread.", max_thread_count);
@@ -41,6 +45,7 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String, micr
         });
     }
 }
+/* Prints a manual to console */
 pub fn print_man()
 {
     println!(
@@ -50,7 +55,7 @@ cargo-run help             -> Prints program usage.\n
 cargo-run start            -> Starts the web server\n"
     );
 }
-
+/* handle client, serves the web page or redirects to microservice */
 fn handle_client(mut stream: std::net::TcpStream, root_path: String, microservice_list: Vec<Microservice>) -> Result<(), &'static str>
 {
     println!("[Main] Log: Incoming connections from: {}", stream.peer_addr().unwrap());

@@ -1,3 +1,6 @@
+/* File Microservice.rs */
+
+/* Import modules */
 use crate::config::Microservice;
 use std::io::Write;
 use std::io::Read;
@@ -42,7 +45,8 @@ pub fn parse_request_string(
 }
 
 
-/* Sends a string through a socket */
+/* Sends a string through a socket, returns a response */
+/* Todo: add timeout if response never comes */
 pub fn redirect_request(microservice_socket: SocketAddr, http_request: String) -> Result<String, ()> {
 
     /* Open a socket to the address given in the parameters */
