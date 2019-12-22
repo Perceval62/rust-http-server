@@ -48,12 +48,7 @@ pub fn start(address: SocketAddr, max_thread_count: u16, root_path: String, micr
 /* Prints a manual to console */
 pub fn print_man()
 {
-    println!(
-        "Rust Server Backend: Vincent Perrier\n
-cargo-run generate-config  -> Generates a default \"config.json\" file.\n
-cargo-run help             -> Prints program usage.\n
-cargo-run start            -> Starts the web server\n"
-    );
+    println!("Rust Server Backend: Vincent Perrier\ncargo-run generate-config  -> Generates a default \"config.json\" file.\ncargo-run help             -> Prints program usage.\ncargo-run start            -> Starts the web server\n");
 }
 /* handle client, serves the web page or redirects to microservice */
 fn handle_client(mut stream: std::net::TcpStream, root_path: String, microservice_list: Vec<Microservice>) -> Result<(), &'static str>
@@ -102,6 +97,7 @@ fn handle_client(mut stream: std::net::TcpStream, root_path: String, microservic
             stream.write(micro_service_response.as_bytes()).unwrap();
         }
         else
+
         {
             //sinon, déservir le chemin demandé
             requested_file = Path::new(&path_string);
