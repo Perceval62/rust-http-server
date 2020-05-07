@@ -78,7 +78,7 @@ pub fn get_server_settings(
 
 pub fn create_default_file() {
     /* create a dummy JSON preference file */
-    let json_file = json!( {"ip":"127.0.0.1","port":80, "num_threads_max":20, "root_path":".", "microservices": [{"address":"127.0.0.1:8080","name":"example"}]});
+    let json_file = json!( {"ip":"127.0.0.1","port":80, "num_threads_max":20, "root_path":"./html/", "microservices": [{"address":"127.0.0.1:8080","name":"example"}]});
     /* Create the file */
     let file = match File::create("./config.json") {
         Ok(file_handle) => file_handle,
