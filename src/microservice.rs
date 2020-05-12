@@ -1,11 +1,20 @@
 /* File Microservice.rs */
 
 /* Import modules */
-use crate::config::Microservice;
+
+use serde::Deserialize;
+use serde::Serialize;
+
 use std::io::Write;
 use std::io::Read;
 use std::net::SocketAddr;
 use std::net::TcpStream;
+
+#[derive(Serialize, Deserialize, Clone)]
+pub struct Microservice {
+    pub address: SocketAddr,
+    pub name: String,
+}
 
 /* Parses the the GET request and returns a socketAddr to it */
 pub fn parse_request_string(

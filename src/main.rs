@@ -1,17 +1,19 @@
+
+mod http;
 mod config;
-mod http_handling;
 mod microservice;
 
 #[macro_use]
 extern crate serde_json;
-use std::env;
-use std::net::SocketAddr;
 
 /*
 *   Main routine, gets command line args and launches routines accordingly.
 */
 
 fn main() {
+
+    boot_rev2();
+    /*
     /* Get command line arguments */
     let args: Vec<String> = env::args().collect();
     /* See if user wants to generate server config */
@@ -70,4 +72,18 @@ fn boot() {
         configuration.2,
         configuration.3,
     );
+    */
+}
+
+fn boot_rev2()
+{
+    let path = String::from("./html/");
+    let ip: std::net::IpAddr = "127.0.0.1".parse().unwrap();
+    let sock: std::net::SocketAddr = std::net::SocketAddr::new(ip, 8080);
+
+    let mut server = http::Http::new(path, sock);
+
+
+
+    server.start();
 }

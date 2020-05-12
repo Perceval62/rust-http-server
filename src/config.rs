@@ -8,11 +8,7 @@ use std::io::Read;
 use std::io::Write;
 use std::path::Path;
 
-#[derive(Serialize, Deserialize, Clone)]
-pub struct Microservice {
-    pub address: SocketAddr,
-    pub name: String,
-}
+use crate::microservice::Microservice;
 
 #[derive(Serialize, Deserialize)]
 struct Pref {
