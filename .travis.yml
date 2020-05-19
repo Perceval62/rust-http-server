@@ -10,6 +10,9 @@ jobs:
 
   include:
   - stage: "documentation"
-    name: "documentation du projet"
-    script: ./scripts/buildDoc.sh
+    name: "documentation du projet" 
+    provider: script
+    script: bash scripts/buildDoc.sh
+    on:
+      branch: travis-setup
 
