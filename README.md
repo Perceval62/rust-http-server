@@ -1,7 +1,8 @@
-# HTTP backend program with microservices redirection
+![travis ci](https://api.travis-ci.com/Perceval62/rust-http-server.svg?branch=master&status=passed)
+# HTTP backend program with routing
 
 ## Description
-This a personal hobby project. I wanted to learn about backend web development. I will use it on my own platform when I get around to build it.
+This a personal hobby project. I wanted to learn about backend web development.
 
 This neat little utility serves a website and handles "HTPP - GET" requests like any
 other HTTP server. It can be useful to isolate and modularize the backend of a web app.
@@ -16,9 +17,7 @@ In the generated "config.json" file, it is possible to write a list of microserv
 This utility can be useful for people looking to:
 
 * build a web app.
-* containerize their app's backend infrastructure.
-* build a personal platform using with microservice.
-* future proof their website's backend.
+* using a single web or domain name to host multiple services.
 
 ## Prerequisites
 
