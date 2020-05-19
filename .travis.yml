@@ -7,3 +7,9 @@ jobs:
   allow_failures:
     - rust: nightly
   fast_finish: true
+
+  include:
+  - stage: "documentation"
+    name: "documentation du projet"
+    script: ./scripts/buildDoc.sh
+
